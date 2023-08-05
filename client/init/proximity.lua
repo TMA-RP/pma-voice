@@ -118,15 +118,16 @@ CreateThread(function()
             Wait(100)
         end
         -- Leave the check here as we don't want to do any of this logic
-        if GetConvarInt('voice_enableUi', 1) == 1 then
-            local curTalkingStatus = MumbleIsPlayerTalking(PlayerId()) == 1
-            if lastRadioStatus ~= radioPressed or lastTalkingStatus ~= curTalkingStatus then
-                lastRadioStatus = radioPressed
-                lastTalkingStatus = curTalkingStatus
-                -- sendUIMessage({
-                --     usingRadio = lastRadioStatus,
-                --     talking = lastTalkingStatus
-                -- })
+        local curTalkingStatus = MumbleIsPlayerTalking(PlayerId()) == 1
+        if lastRadioStatus ~= radioPressed or lastTalkingStatus ~= curTalkingStatus then
+            lastRadioStatus = radioPressed
+            lastTalkingStatus = curTalkingStatus
+            if GetConvarInt('voice_enableUi', 1) == 1 then
+                sendUIMessage({
+                    usingRadio = lastRadioStatus,
+                    talking = lastTalkingStatus
+                })
+            else
                 TriggerEvent("ceeb_hud:setTalking", {
                     usingRadio = lastRadioStatus,
                     talking = lastTalkingStatus
@@ -178,8 +179,8 @@ AddEventHandler("onClientResourceStop", function(resource)
             if isResource then
                 addProximityCheck = orig_addProximityCheck
                 logger.warn(
-                'Reset proximity check to default, the original resource [%s] which provided the function restarted',
-                resource)
+                    'Reset proximity check to default, the original resource [%s] which provided the function restarted',
+                    resource)
             end
         end
     end
