@@ -123,6 +123,10 @@ CreateThread(function()
             if lastRadioStatus ~= radioPressed or lastTalkingStatus ~= curTalkingStatus then
                 lastRadioStatus = radioPressed
                 lastTalkingStatus = curTalkingStatus
+                -- sendUIMessage({
+                --     usingRadio = lastRadioStatus,
+                --     talking = lastTalkingStatus
+                -- })
                 TriggerEvent("ceeb_hud:setTalking", {
                     usingRadio = lastRadioStatus,
                     talking = lastTalkingStatus
