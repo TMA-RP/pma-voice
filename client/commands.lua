@@ -12,8 +12,10 @@ RegisterCommand('setvoiceintent', function(source, args)
     end
 end)
 TriggerEvent('chat:addSuggestion', '/setvoiceintent', 'Sets the players voice intent', {
-    { name = "intent",
-        help = "speech is default and enables noise suppression & high pass filter, music disables both of these." },
+    {
+        name = "intent",
+        help = "speech is default and enables noise suppression & high pass filter, music disables both of these."
+    },
 })
 
 -- TODO: Better implementation of this?
@@ -77,5 +79,5 @@ RegisterCommand('cycleproximity', function()
     TriggerEvent('pma-voice:setTalkingMode', mode)
 end, false)
 if gameVersion == 'fivem' then
-    RegisterKeyMapping('cycleproximity', 'Cycle Proximity', 'keyboard', GetConvar('voice_defaultCycle', 'F11'))
+    exports.KSKC:RegisterKeyMapping('cycleproximity', 'Voix - Changer distance', 'keyboard', GetConvar('voice_defaultCycle', 'F11'))
 end
