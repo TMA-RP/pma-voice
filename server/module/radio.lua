@@ -68,7 +68,7 @@ function addPlayerToRadio(source, radioChannel)
     voiceData[source].radio = radioChannel
     radioData[radioChannel][source] = false
     TriggerClientEvent('pma-voice:syncRadioData', source, radioData[radioChannel],
-    GetConvarInt("voice_syncPlayerNames", 0) == 1 and plyName)
+        GetConvarInt("voice_syncPlayerNames", 0) == 1 and plyName)
 end
 
 --- removes a player from the specified channel
@@ -101,7 +101,7 @@ function setPlayerRadio(source, _radioChannel)
             error(("'radioChannel' expected 'number', got: %s"):format(type(_radioChannel)))
         else
             return logger.warn("%s sent a invalid radio, 'radioChannel' expected 'number', got: %s", source,
-            type(_radioChannel))
+                type(_radioChannel))
         end
     end
     if isResource then
@@ -128,19 +128,22 @@ end)
 
 --- syncs the player talking across all radio members
 ---@param talking boolean sets if the palyer is talking.
-function setTalkingOnRadio(talking)
+function setTalkingOnRadio(talking, coords)
     if GetConvarInt('voice_enableRadios', 1) ~= 1 then return end
     voiceData[source] = voiceData[source] or defaultTable(source)
     local plyVoice = voiceData[source]
     local radioTbl = radioData[plyVoice.radio]
     if radioTbl then
-        radioTbl[source] = talking
+        radioTbl[source] = {
+            enabled = talking,
+            coords = coords
+        }
         logger.verbose('[radio] Set %s to talking: %s on radio %s', source, talking, plyVoice.radio)
         for player, _ in pairs(radioTbl) do
             if player ~= source then
-                TriggerClientEvent('pma-voice:setTalkingOnRadio', player, source, talking)
+                TriggerClientEvent('pma-voice:setTalkingOnRadio', player, source, talking, coords)
                 logger.verbose('[radio] Sync %s to let them know %s is %s', player, source,
-                talking and 'talking' or 'not talking')
+                    talking and 'talking' or 'not talking')
             end
         end
     end
@@ -155,7 +158,7 @@ AddEventHandler("onResourceStop", function(resource)
         if functionResource then
             radioChecks[channel] = nil
             logger.warn('Channel %s had its radio check removed because the resource that gave the checks stopped',
-            channel)
+                channel)
         end
     end
 
@@ -166,7 +169,7 @@ AddEventHandler("onResourceStop", function(resource)
             if isResource then
                 radioNameGetter = radioNameGetter_orig
                 logger.warn(
-                'Radio name getter is resetting to default because the resource that gave the cb got turned off')
+                    'Radio name getter is resetting to default because the resource that gave the cb got turned off')
             end
         end
     end

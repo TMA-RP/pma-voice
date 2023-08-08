@@ -14,9 +14,9 @@ function syncRadioData(radioTable, localPlyRadioName)
         tPrint(radioData)
         print('-----------------------------')
     end
-    for tgt, enabled in pairs(radioTable) do
+    for tgt, value in pairs(radioTable) do
         if tgt ~= playerServerId then
-            toggleVoice(tgt, enabled, 'radio')
+            toggleVoice(tgt, value.enabled, 'radio', value.coords)
         end
     end
     sendUIMessage({
@@ -34,15 +34,22 @@ RegisterNetEvent('pma-voice:syncRadioData', syncRadioData)
 --- sets the players talking status, triggered when a player starts/stops talking.
 ---@param plySource number the players server id.
 ---@param enabled boolean whether the player is talking or not.
-function setTalkingOnRadio(plySource, enabled)
+function setTalkingOnRadio(plySource, enabled, coords)
     radioData[plySource] = enabled
     -- if we don't have radioEnabled don't actually set them as talking (we still want the state to enable people talking later)
     if not radioEnabled then return end
     -- If we're on a call we don't want to toggle their voice disabled this will break calls.
     if not callData[plySource] then
-        toggleVoice(plySource, enabled, 'radio')
+        toggleVoice(plySource, enabled, 'radio', coords)
     end
-    playMicClicks(enabled)
+    local distance = 0
+    if coords then
+        distance = #(GetEntityCoords(PlayerPedId()) - vector3(coords.xyz))
+    end
+
+    if distance < 1700 then
+        playMicClicks(enabled)
+    end
 end
 
 RegisterNetEvent('pma-voice:setTalkingOnRadio', setTalkingOnRadio)
@@ -166,7 +173,14 @@ RegisterCommand('+radiotalk', function()
         if radioChannel > 0 then
             logger.info('[radio] Start broadcasting, update targets and notify server.')
             playerTargets(radioData, MumbleIsPlayerTalking(PlayerId()) and callData or {})
-            TriggerServerEvent('pma-voice:setTalkingOnRadio', true)
+            local ped = cache.ped
+            local coords = GetEntityCoords(ped)
+            if cache.vehicle and GetVehicleClass(cache.vehicle) == 18 then
+                coords = nil
+                lib.notify({ description = "Vous parlez en radio longue portée" })
+            end
+
+            TriggerServerEvent('pma-voice:setTalkingOnRadio', true, coords)
             radioPressed = true
             playMicClicks(true)
             if GetConvarInt('voice_enableRadioAnim', 0) == 1 and not (GetConvarInt('voice_disableVehicleRadioAnim', 0) == 1 and IsPedInAnyVehicle(PlayerPedId(), false)) and not disableRadioAnim then

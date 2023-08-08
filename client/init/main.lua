@@ -60,36 +60,9 @@ end)
 -- o_freq_lo = 348.0
 -- o_freq_hi = 4900.0
 
-local radioEffectId = CreateAudioSubmix('Radio')
-SetAudioSubmixEffectRadioFx(radioEffectId, 0)
--- This is a GetHashKey on purpose, backticks break treesitter in nvim :|
-SetAudioSubmixEffectParamInt(radioEffectId, 0, GetHashKey('default'), 1)
-SetAudioSubmixOutputVolumes(
-    radioEffectId,
-    0,
-    1.0 --[[ frontLeftVolume ]],
-    0.25 --[[ frontRightVolume ]],
-    0.0 --[[ rearLeftVolume ]],
-    0.0 --[[ rearRightVolume ]],
-    1.0 --[[ channel5Volume ]],
-    1.0 --[[ channel6Volume ]]
-)
-AddAudioSubmixOutput(radioEffectId, 0)
-submixIndicies['radio'] = radioEffectId
-
-local callEffectId = CreateAudioSubmix('Call')
-SetAudioSubmixOutputVolumes(
-    callEffectId,
-    1,
-    0.10 --[[ frontLeftVolume ]],
-    0.50 --[[ frontRightVolume ]],
-    0.0 --[[ rearLeftVolume ]],
-    0.0 --[[ rearRightVolume ]],
-    1.0 --[[ channel5Volume ]],
-    1.0 --[[ channel6Volume ]]
-)
-AddAudioSubmixOutput(callEffectId, 1)
-submixIndicies['call'] = callEffectId
+SetAudioSubmixEffectRadioFx(0, 0)
+SetAudioSubmixEffectParamInt(0, 0, `default`, 1)
+SetAudioSubmixEffectParamInt(0, 0, `enabled`, 0)
 
 -- Callback is expected to return data in an array, this is for compatibility sake with js, index 0 should be the name and index 1 should be the submixId
 -- the callback is sent the effectSlot it can register to, not sure if this is needed, but its here for safety
@@ -102,6 +75,10 @@ exports("registerCustomSubmix", function(callback)
     submixIndicies[submixName] = submixId
 end)
 TriggerEvent("pma-voice:registerCustomSubmixes")
+
+exports("getCustomSubmix", function(submixName)
+    return submixIndicies[submixName]
+end)
 
 --- export setEffectSubmix
 --- Sets a user defined audio submix for radio and phonecall effects
@@ -131,7 +108,7 @@ local disableSubmixReset = {}
 ---@param plySource number the players server id to override the volume for
 ---@param enabled boolean if the players voice is getting activated or deactivated
 ---@param moduleType string the volume & submix to use for the voice.
-function toggleVoice(plySource, enabled, moduleType)
+function toggleVoice(plySource, enabled, moduleType, coords)
     if mutedPlayers[plySource] then return end
     logger.verbose('[main] Updating %s to talking: %s with submix %s', plySource, enabled, moduleType)
     local distance = currentTargets[plySource]
@@ -140,7 +117,22 @@ function toggleVoice(plySource, enabled, moduleType)
         if GetConvarInt('voice_enableSubmix', 1) == 1 then
             if moduleType then
                 disableSubmixReset[plySource] = true
-                if submixIndicies[moduleType] then
+                if moduleType == "radio" then
+                    if coords then
+                        distance = #(GetEntityCoords(PlayerPedId()) - coords)
+                        local appropriateMix = "radio_default"
+                        if distance >= 900 and distance < 1300 then
+                            appropriateMix = "radio_medium_distance"
+                        elseif distance >= 1300 and distance < 1700 then
+                            appropriateMix = "radio_far_distance"
+                        elseif distance >= 1700 then
+                            MumbleSetVolumeOverrideByServerId(plySource, 0.0)
+                        end
+                        MumbleSetSubmixForServerId(plySource, submixIndicies[appropriateMix])
+                    else
+                        MumbleSetSubmixForServerId(plySource, submixIndicies.radio_default)
+                    end
+                else
                     MumbleSetSubmixForServerId(plySource, submixIndicies[moduleType])
                 end
             else
