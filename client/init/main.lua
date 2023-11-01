@@ -5,6 +5,8 @@ local volumes = {
     -- people are setting this to 1 instead of 1.0 and expecting it to work.
     ['radio'] = GetConvarInt('voice_defaultRadioVolume', 60) / 100,
     ['call'] = GetConvarInt('voice_defaultCallVolume', 60) / 100,
+    ['click_on'] = GetConvarInt('voice_onClickVolume', 10) / 100,
+    ['click_off'] = GetConvarInt('voice_offClickVolume', 3) / 100,
 }
 
 radioEnabled, radioPressed, mode = true, false, GetConvarInt('voice_defaultVoiceMode', 2)
@@ -17,23 +19,23 @@ submixIndicies = {}
 ---@param volumeType string the volume type (currently radio & call) to set the volume of (opt)
 function setVolume(volume, volumeType)
     type_check({ volume, "number" })
-    local volume = volume / 100
+    local volumeFraction = volume / 100
 
     if volumeType then
         local volumeTbl = volumes[volumeType]
         if volumeTbl then
             LocalPlayer.state:set(volumeType, volume, true)
-            volumes[volumeType] = volume
-            resyncVolume(volumeType, volume)
+            volumes[volumeType] = volumeFraction
+            resyncVolume(volumeType, volumeFraction)
         else
             error(('setVolume got a invalid volume type %s'):format(volumeType))
         end
     else
         for volumeType, _ in pairs(volumes) do
-            volumes[volumeType] = volume
+            volumes[volumeType] = volumeFraction
             LocalPlayer.state:set(volumeType, volume, true)
         end
-        resyncVolume("all", volume)
+        resyncVolume("all", volumeFraction)
     end
 end
 
@@ -41,13 +43,13 @@ exports('setRadioVolume', function(vol)
     setVolume(vol, 'radio')
 end)
 exports('getRadioVolume', function()
-    return volumes['radio']
+    return volumes['radio'] * 100
 end)
 exports("setCallVolume", function(vol)
     setVolume(vol, 'call')
 end)
 exports('getCallVolume', function()
-    return volumes['call']
+    return volumes['call'] * 100
 end)
 
 
@@ -174,12 +176,12 @@ function resyncVolume(volumeType, newVolume)
     end
 end
 
---- function playerTargets
----Adds players voices to the local players listen channels allowing
----Them to communicate at long range, ignoring proximity range.
+---Adds players voices to the local players listen channels allowing them to
+---communicate at long range, ignoring proximity range.
+---
 ---@diagnostic disable-next-line: undefined-doc-param
 ---@param targets table expects multiple tables to be sent over
-function playerTargets(...)
+function addVoiceTargets(...)
     local targets = { ... }
     local addedPlayers = {
         [playerServerId] = true
@@ -210,7 +212,7 @@ function playMicClicks(clickType)
     -- TODO: Add customizable radio click volumes
     sendUIMessage({
         sound = (clickType and "audio_on" or "audio_off"),
-        volume = (clickType and 0.1 or 0.03)
+        volume = (clickType and volumes['click_on'] or volumes['click_off'])
     })
 end
 
@@ -293,4 +295,21 @@ if gameVersion == 'redm' then
             Wait(0)
         end
     end)
+end
+
+--- handles initializiation for whenever radio or call data changes
+--- calls should always be last because they're assumed to always be enabled so
+--- theres no delay in talking.
+function handleRadioAndCallInit()
+    for tgt, enabled in pairs(radioData) do
+        if tgt ~= playerServerId then
+            toggleVoice(tgt, enabled, 'radio')
+        end
+    end
+
+    for tgt, enabled in pairs(callData) do
+        if tgt ~= playerServerId then
+            toggleVoice(tgt, true, 'call')
+        end
+    end
 end

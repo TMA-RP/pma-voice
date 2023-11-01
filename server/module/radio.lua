@@ -50,10 +50,13 @@ exports('overrideRadioNameGetter', overrideRadioNameGetter)
 --- adds a player to the specified radion channel
 ---@param source number the player to add to the channel
 ---@param radioChannel number the channel to set them to
+---@return boolean wasAdded if the player was successfuly added to the radio channel, or if it failed.
 function addPlayerToRadio(source, radioChannel)
     if not canJoinChannel(source, radioChannel) then
         -- remove the player from the radio client side
-        return TriggerClientEvent('pma-voice:removePlayerFromRadio', source, source)
+        TriggerClientEvent("pma-voice:radioChangeRejected", source)
+        TriggerClientEvent('pma-voice:removePlayerFromRadio', source, source)
+        return false
     end
     logger.verbose('[radio] Added %s to radio %s', source, radioChannel)
 
