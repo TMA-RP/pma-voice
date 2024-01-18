@@ -69,7 +69,10 @@ function addPlayerToRadio(source, radioChannel)
 	end
 	voiceData[source] = voiceData[source] or defaultTable(source)
 	voiceData[source].radio = radioChannel
-	radioData[radioChannel][source] = false
+	radioData[radioChannel][source] = {
+		enabled = false,
+		coords = vector3(0.0, 0.0, 0.0)
+	}
 	TriggerClientEvent('pma-voice:syncRadioData', source, radioData[radioChannel],
 		GetConvarInt("voice_syncPlayerNames", 0) == 1 and plyName)
 	return true

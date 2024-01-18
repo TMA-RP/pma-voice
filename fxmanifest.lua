@@ -16,7 +16,6 @@ shared_scripts {
 }
 
 client_scripts {
-    'client/utils/*',
     'client/init/proximity.lua',
     'client/init/init.lua',
     'client/init/main.lua',

@@ -245,9 +245,6 @@ function setVoiceProperty(type, value)
 	if type == "radioEnabled" then
 		radioEnabled = value
 		handleRadioEnabledChanged(value)
-		sendUIMessage({
-			radioEnabled = value
-		})
 	elseif type == "micClicks" then
 		local val = tostring(value)
 		micClicks = val

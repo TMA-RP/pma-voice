@@ -34,9 +34,6 @@ function setCallChannel(channel)
 	if GetConvarInt('voice_enableCalls', 1) ~= 1 then return end
 	TriggerServerEvent('pma-voice:setPlayerCall', channel)
 	callChannel = channel
-	sendUIMessage({
-		callInfo = channel
-	})
 end
 
 exports('setCallChannel', setCallChannel)
