@@ -193,9 +193,6 @@ RegisterCommand('+radiotalk', function()
             radioPressed = true
             local shouldPlayAnimation = isRadioAnimEnabled()
             playMicClicks(true)
-            if shouldPlayAnimation then
-                RequestAnimDict('random@arrests')
-            end
             CreateThread(function()
                 TriggerEvent("pma-voice:radioActive", true)
                 LocalPlayer.state:set("radioActive", true, true);
@@ -205,11 +202,13 @@ RegisterCommand('+radiotalk', function()
                         checkFailed = true
                         break
                     end
-                    if shouldPlayAnimation and HasAnimDictLoaded("random@arrests") then
+                    if shouldPlayAnimation then
                         if not IsEntityPlayingAnim(PlayerPedId(), "random@arrests", "generic_radio_enter", 3) then
+                            RequestAnimDict('random@arrests')
                             TaskPlayAnim(PlayerPedId(), "random@arrests", "generic_radio_enter", 8.0, 2.0, -1, 50, 2.0, false,
                                 false,
                                 false)
+                            RemoveAnimDict("random@arrests")
                         end
                     end
                     SetControlNormal(0, 249, 1.0)
