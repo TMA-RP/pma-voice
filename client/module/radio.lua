@@ -204,7 +204,7 @@ RegisterCommand('+radiotalk', function()
                     end
                     if shouldPlayAnimation then
                         if not IsEntityPlayingAnim(PlayerPedId(), "random@arrests", "generic_radio_enter", 3) then
-                            RequestAnimDict('random@arrests')
+                            lib.requestAnimDict('random@arrests')
                             TaskPlayAnim(PlayerPedId(), "random@arrests", "generic_radio_enter", 8.0, 2.0, -1, 50, 2.0, false,
                                 false,
                                 false)
