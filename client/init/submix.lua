@@ -7,18 +7,16 @@ ConfigSubmixes = {
 			rm_mix      = 0.05,
 			fudge       = 1.0,
 			o_freq_lo   = 50.0,
-			o_freq_hi   = 6000.0,
+			o_freq_hi   = 9000.0,
 		}
 	},
 	megaphone = {
 		filters = {
-			freq_low    = 10.0,
+			freq_low    = 50.0,
 			freq_hi     = 10000.0,
-			rm_mod_freq = 300.0,
-			rm_mix      = 0.2,
-			fudge       = 0.0,
-			o_freq_lo   = 200.0,
-			o_freq_hi   = 5000.0,
+			fudge       = 2.0,
+			rm_mod_freq = 9000.0,
+			rm_mix      = 2.5,
 		}
 	},
 	muffled = {
