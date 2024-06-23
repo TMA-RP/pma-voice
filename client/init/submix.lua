@@ -1,5 +1,6 @@
 ConfigSubmixes = {
 	micro = {
+		volume = 1.0,
 		filters = {
 			freq_low    = 50.0,
 			freq_hi     = 10000.0,
@@ -11,6 +12,7 @@ ConfigSubmixes = {
 		}
 	},
 	megaphone = {
+		volume = 1.0,
 		filters = {
 			freq_low    = 50.0,
 			freq_hi     = 10000.0,
@@ -70,6 +72,9 @@ CreateThread(function()
 		SetAudioSubmixEffectParamInt(submixId, 0, `default`, 1)
 		for key, value in pairs(submix.filters) do
 			SetAudioSubmixEffectParamFloat(submixId, 0, GetHashKey(key), value)
+		end
+		if submix.volume then
+			SetAudioSubmixOutputVolumes(submixId, 0, submix.volume, 1.0, 1.0, 1.0, 1.0, 1.0)
 		end
 		AddAudioSubmixOutput(submixId, 0)
 		submixIndicies[submixName] = submixId
