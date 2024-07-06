@@ -135,7 +135,11 @@ function toggleVoice(plySource, enabled, moduleType, coords)
                         MumbleSetSubmixForServerId(plySource, submixIndicies.radio_default)
                     end
                 else
-                    MumbleSetSubmixForServerId(plySource, submixIndicies[moduleType])
+                    if submixIndicies[moduleType] then
+                        MumbleSetSubmixForServerId(plySource, submixIndicies[moduleType])
+                    else
+                        restoreDefaultSubmix(plySource)
+                    end
                 end
             else
                 restoreDefaultSubmix(plySource)
