@@ -184,10 +184,16 @@ RegisterCommand('+radiotalk', function()
             addVoiceTargets(radioData, callData)
             local ped = cache.ped
             local coords = GetEntityCoords(ped)
-            if cache.vehicle and GetVehicleClass(cache.vehicle) == 18 then
-                coords = nil
-                lib.notify({ description = "Vous parlez en radio longue portée" })
+            local player = Ox.GetPlayer()
+            if player and player.charId then
+                local job, grade = player.getGroupByType("job")
+                if LocalPlayer.state.inDuty and job and (job == "police" or job == "ambulance") then
+                    coords = nil
+                end
             end
+            -- if cache.vehicle and GetVehicleClass(cache.vehicle) == 18 then
+            --     coords = nil
+            -- end
 
             TriggerServerEvent('pma-voice:setTalkingOnRadio', true, coords)
             radioPressed = true

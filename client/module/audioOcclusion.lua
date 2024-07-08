@@ -55,7 +55,7 @@ CreateThread(function()
 					local playerServerId = GetPlayerServerId(v)
 					local playerState = Player(playerServerId).state
 					local localPlayerState = LocalPlayer.state
-					if not playerState.micro and not playerState.megaphone and not radioData[playerServerId] then
+					if not playerState.micro and not playerState.megaphone and not radioData[playerServerId] and not callData[playerServerId] then
 						if playerState.muffled or localPlayerState.muffled then
 							if playerVeh ~= GetVehiclePedIsIn(otherPlayer) then
 								MumbleSetSubmixForServerId(playerServerId, exports["pma-voice"]:getCustomSubmix("muffled"))

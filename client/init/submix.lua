@@ -63,6 +63,32 @@ ConfigSubmixes = {
 			o_freq_hi   = 5000.0,
 		}
 	},
+    call = {
+        volume = 0.25,
+        filters = {
+            default     = 0,
+            freq_low    = 100.0, -- Lower cutoff frequency
+            freq_hi     = 10000.0, -- Upper cutoff frequency
+            rm_mod_freq = 300.0,
+            fudge       = 0.5, -- Add some randomness to the effect
+            o_freq_lo   = 200.0,
+            o_freq_hi   = 5000.0,
+            rm_mix      = 0.05
+        }
+    },
+    -- phonespeaker = {
+    --     volume = 1.0,
+    --     filters = {
+    --         default     = 0,
+    --         freq_low    = 100.0, -- Lower cutoff frequency
+    --         freq_hi     = 10000.0, -- Upper cutoff frequency
+    --         rm_mod_freq = 300.0,
+    --         fudge       = 0.5, -- Add some randomness to the effect
+    --         o_freq_lo   = 200.0,
+    --         o_freq_hi   = 5000.0,
+    --         rm_mix      = 0.15
+    --     }
+    -- }
 }
 
 CreateThread(function()
