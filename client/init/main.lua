@@ -301,7 +301,11 @@ end
 function handleRadioAndCallInit()
     for tgt, data in pairs(radioData) do
         if tgt ~= playerServerId then
-            toggleVoice(tgt, data.enabled, 'radio', data.coords)
+            if data.enabled ~= nil and data.coords ~= nil then
+                toggleVoice(tgt, data.enabled, 'radio', data.coords)
+            else
+                toggleVoice(tgt, data, 'radio')
+            end
         end
     end
 
