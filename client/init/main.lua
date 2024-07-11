@@ -110,7 +110,7 @@ local disableSubmixReset = {}
 ---@param plySource number the players server id to override the volume for
 ---@param enabled boolean if the players voice is getting activated or deactivated
 ---@param moduleType string the volume & submix to use for the voice.
-function toggleVoice(plySource, enabled, moduleType, coords)
+function toggleVoice(plySource, enabled, moduleType)
     if mutedPlayers[plySource] then return end
     logger.verbose('[main] Updating %s to talking: %s with submix %s', plySource, enabled, moduleType)
     local distance = currentTargets[plySource]
@@ -119,27 +119,14 @@ function toggleVoice(plySource, enabled, moduleType, coords)
         if GetConvarInt('voice_enableSubmix', 1) == 1 then
             if moduleType then
                 disableSubmixReset[plySource] = true
+                local submixKey
                 if moduleType == "radio" then
-                    if coords then
-                        distance = #(GetEntityCoords(PlayerPedId()) - coords)
-                        local appropriateMix = "radio_default"
-                        if distance >= 900 and distance < 1300 then
-                            appropriateMix = "radio_medium_distance"
-                        elseif distance >= 1300 and distance < 1700 then
-                            appropriateMix = "radio_far_distance"
-                        elseif distance >= 1700 then
-                            MumbleSetVolumeOverrideByServerId(plySource, 0.0)
-                        end
-                        MumbleSetSubmixForServerId(plySource, submixIndicies[appropriateMix])
-                    else
-                        MumbleSetSubmixForServerId(plySource, submixIndicies.radio_default)
-                    end
-                else
-                    if submixIndicies[moduleType] then
-                        MumbleSetSubmixForServerId(plySource, submixIndicies[moduleType])
-                    else
-                        restoreDefaultSubmix(plySource)
-                    end
+                    submixKey = "radio_default"
+                elseif moduleType == "call" then
+                    submixKey = "call"
+                end
+                if submixIndicies[submixKey] then
+                    MumbleSetSubmixForServerId(plySource, submixIndicies[submixKey])
                 end
             else
                 restoreDefaultSubmix(plySource)
@@ -299,13 +286,9 @@ end
 --- calls should always be last because they're assumed to always be enabled so
 --- theres no delay in talking.
 function handleRadioAndCallInit()
-    for tgt, data in pairs(radioData) do
+    for tgt, enabled in pairs(radioData) do
         if tgt ~= playerServerId then
-            if data.enabled ~= nil and data.coords ~= nil then
-                toggleVoice(tgt, data.enabled, 'radio', data.coords)
-            else
-                toggleVoice(tgt, data, 'radio')
-            end
+            toggleVoice(tgt, enabled, 'radio')
         end
     end
 

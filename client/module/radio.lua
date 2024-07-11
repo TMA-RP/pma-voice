@@ -35,13 +35,13 @@ RegisterNetEvent('pma-voice:syncRadioData', syncRadioData)
 --- sets the players talking status, triggered when a player starts/stops talking.
 ---@param plySource number the players server id.
 ---@param enabled boolean whether the player is talking or not.
-function setTalkingOnRadio(plySource, enabled, coords)
+function setTalkingOnRadio(plySource, enabled)
     radioData[plySource] = enabled
 
     if not isRadioEnabled() then return logger.info("[radio] Ignoring setTalkingOnRadio. radioEnabled: %s disableRadio: %s", radioEnabled, LocalPlayer.state.disableRadio) end
     -- If we're on a call we don't want to toggle their voice disabled this will break calls.
     local enabled = enabled or callData[plySource]
-    toggleVoice(plySource, enabled, 'radio', coords)
+    toggleVoice(plySource, enabled, 'radio')
     playMicClicks(enabled)
 end
 
@@ -182,20 +182,7 @@ RegisterCommand('+radiotalk', function()
         if radioChannel > 0 then
             logger.info('[radio] Start broadcasting, update targets and notify server.')
             addVoiceTargets(radioData, callData)
-            local ped = cache.ped
-            local coords = GetEntityCoords(ped)
-            local player = Ox.GetPlayer()
-            if player and player.charId then
-                local job, grade = player.getGroupByType("job")
-                if LocalPlayer.state.inDuty and job and (job == "police" or job == "ambulance") then
-                    coords = nil
-                end
-            end
-            -- if cache.vehicle and GetVehicleClass(cache.vehicle) == 18 then
-            --     coords = nil
-            -- end
-
-            TriggerServerEvent('pma-voice:setTalkingOnRadio', true, coords)
+            TriggerServerEvent('pma-voice:setTalkingOnRadio', true)
             radioPressed = true
             local shouldPlayAnimation = isRadioAnimEnabled()
             playMicClicks(true)
