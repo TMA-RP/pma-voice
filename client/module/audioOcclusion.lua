@@ -1,7 +1,7 @@
 DoVehicleChecks = function(player)
     local vehicle = GetVehiclePedIsIn(player)
     if vehicle > 0 and DoesVehicleHaveRoof(vehicle) then
-        if not exports.ceeb_vehicle:IsVehicleIsVehicle(cache.vehicle) then
+        if not exports.ceeb_vehicle:IsVehicleIsVehicle(vehicle) then
             return false
         end
         local doors = GetNumberOfVehicleDoors(vehicle)
