@@ -4,6 +4,10 @@ DoVehicleChecks = function(player)
         if not exports.ceeb_vehicle:IsVehicleIsVehicle(vehicle) then
             return false
         end
+        local model = GetEntityModel(vehicle)
+        if IsThisModelAQuadbike(model) then
+            return false
+        end
         local doors = GetNumberOfVehicleDoors(vehicle)
 
         for i = 0, doors do
